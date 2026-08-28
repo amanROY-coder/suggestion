@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campus Voice - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-12">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-lg">
+          <i class="fa-solid fa-mask"></i>
+        </div>
+        <div>
+          <span class="text-xs text-slate-400 block font-medium">Welcome, <span id="nav-user-alias" class="text-white font-bold">--</span></span>
+          <span id="nav-user-branch" class="text-[11px] text-indigo-400 font-medium">--</span>
+        </div>
+      </div>
+      <button onclick="logout()" class="px-3 py-1.5 text-xs text-rose-400 bg-rose-950/40 border border-rose-800/40 rounded-lg hover:bg-rose-900/50 transition">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Logout
+      </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="max-w-4xl mx-auto px-4 flex border-t border-slate-800/80 gap-6">
+      <button onclick="changeView('home')" id="tab-btn-home" class="py-3 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2">
+        <i class="fa-solid fa-house"></i> Home Feed
+      </button>
+      <button onclick="changeView('suggestion')" id="tab-btn-suggestion" class="py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i> Suggestion
+      </button>
+      <button onclick="changeView('me')" id="tab-btn-me" class="py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2">
+        <i class="fa-solid fa-user-gear"></i> Me
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6">
+
+    <!-- 1. HOME TAB -->
+    <section id="section-home" class="space-y-4">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-bold text-white">Campus Feed</h2>
+        <span id="post-count" class="text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-slate-400">0 suggestions</span>
+      </div>
+      
+      <div id="posts-feed" class="space-y-4"></div>
+    </section>
+
+    <!-- 2. SUGGESTION TAB -->
+    <section id="section-suggestion" class="hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-2xl mx-auto">
+        <h2 class="text-xl font-bold text-white mb-1">Send Anonymous Suggestion</h2>
+        <p class="text-xs text-slate-400 mb-6">Your suggestion will be sent to the Super Admin and Campus Feed.</p>
+
+        <form onsubmit="submitSuggestion(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Suggestion Category</label>
+            <select id="post-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Labs & Academics">Labs & Academics</option>
+              <option value="Canteen & Food">Canteen & Food</option>
+              <option value="Hostel & Facilities">Hostel & Facilities</option>
+              <option value="Library">Library</option>
+              <option value="Campus Events & Sports">Campus Events & Sports</option>
+              <option value="General Suggestion">General Suggestion</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Title / Summary</label>
+            <input type="text" id="post-title" required placeholder="e.g. Need more high-spec PCs in Lab 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Suggestion Details</label>
+            <textarea id="post-desc" required rows="4" placeholder="Detail the issue or improvement..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+
+          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition text-sm">
+            Publish Suggestion
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. ME TAB -->
+    <section id="section-me" class="hidden">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-xl mx-auto">
+        <h2 class="text-xl font-bold text-white mb-6">Student Profile</h2>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6 space-y-1">
+          <p class="text-xs text-slate-400 uppercase font-semibold">Anonymous Persona</p>
+          <p id="me-alias-display" class="text-lg font-bold text-indigo-400">--</p>
+          <p class="text-xs text-slate-400 mt-2">Registered Branch: <span id="me-branch-display" class="text-white font-medium">--</span></p>
+          <p class="text-xs text-slate-400">Email: <span id="me-email-display" class="text-slate-300">--</span></p>
+        </div>
+
+        <div id="pwd-msg" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border text-center"></div>
+
+        <form onsubmit="changePassword(event)" class="space-y-4">
+          <h3 class="text-sm font-semibold text-white">Change Password</h3>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase">Old Password</label>
+            <input type="password" id="old-pass" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase">New Password</label>
+            <input type="password" id="new-pass" required minlength="4" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded-xl border border-slate-700 transition text-sm">
+            Update Password
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) window.location.href = "page1.html";
+
+    document.getElementById('nav-user-alias').innerText = currentUser.alias;
+    document.getElementById('nav-user-branch').innerText = currentUser.branch || "General";
+    document.getElementById('me-alias-display').innerText = currentUser.alias;
+    document.getElementById('me-branch-display').innerText = currentUser.branch || "General";
+    document.getElementById('me-email-display').innerText = currentUser.email;
+
+    function changeView(tab) {
+      ['home', 'suggestion', 'me'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${t}`).className = "py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2";
+      });
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tab}`).className = "py-3 text-sm font-semibold border-b-2 border-indigo-500 text-indigo-400 flex items-center gap-2";
+      if (tab === 'home') renderFeed();
+    }
+
+    function renderFeed() {
+      const posts = JSON.parse(localStorage.getItem('suggestions') || "[]");
+      const feed = document.getElementById('posts-feed');
+      document.getElementById('post-count').innerText = `${posts.length} suggestions`;
+
+      if (posts.length === 0) {
+        feed.innerHTML = `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-10 text-center text-slate-500">
+            <i class="fa-regular fa-comment-dots text-4xl mb-3"></i>
+            <p>No suggestions posted yet.</p>
+          </div>`;
+        return;
+      }
+
+      feed.innerHTML = posts.map((post, idx) => {
+        const repostList = post.repostedBy || [];
+        const upvoteList = post.upvotedBy || [];
+        const hasReposted = repostList.includes(currentUser.email);
+        const hasUpvoted = upvoteList.includes(currentUser.email);
+
+        // Check if post belongs to logged-in user (matches email or alias)
+        const isOwner = (post.authorEmail && post.authorEmail === currentUser.email) || (post.author === currentUser.alias);
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-slate-700 transition relative">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-bold text-indigo-400">${escapeHtml(post.author)}</span>
+                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md border border-slate-700">${escapeHtml(post.branch || 'General')}</span>
+                ${isOwner ? '<span class="text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800/40 px-2 py-0.5 rounded-md font-semibold">You</span>' : ''}
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 px-2.5 py-0.5 rounded-full font-medium">${escapeHtml(post.category)}</span>
+                
+                <!-- DELETE BUTTON (Visible on all posts created by you) -->
+                ${isOwner ? `
+                  <button onclick="deleteSuggestion(${idx})" title="Delete your post" class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 px-2.5 py-1 rounded-lg transition flex items-center gap-1">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Delete</span>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <h3 class="text-base font-semibold text-white mb-1">${escapeHtml(post.title)}</h3>
+            <p class="text-sm text-slate-300 mb-4 whitespace-pre-wrap">${escapeHtml(post.desc)}</p>
+
+            <div class="flex items-center justify-between border-t border-slate-800/80 pt-3 text-xs text-slate-400">
+              <span>${post.date || 'Just now'}</span>
+              <div class="flex items-center gap-2">
+                <!-- Upvote Button -->
+                <button onclick="handleUpvote(${idx})" 
+                  ${hasUpvoted ? 'disabled' : ''} 
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    hasUpvoted ? 'bg-indigo-950/50 text-indigo-300 border border-indigo-800/40 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                  }">
+                  <i class="fa-solid fa-thumbs-up mr-1 text-indigo-400"></i> ${upvoteList.length}
+                </button>
+                
+                <!-- Repost Button -->
+                <button onclick="handleRepost(${idx})" 
+                  ${hasReposted ? 'disabled' : ''} 
+                  class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    hasReposted 
+                      ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-900/50 cursor-not-allowed' 
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer'
+                  }">
+                  <i class="fa-solid fa-repeat mr-1 text-emerald-400"></i>
+                  ${hasReposted ? 'Reposted' : 'Repost'} (${repostList.length})
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function submitSuggestion(e) {
+      e.preventDefault();
+      const title = document.getElementById('post-title').value.trim();
+      const desc = document.getElementById('post-desc').value.trim();
+      const category = document.getElementById('post-category').value;
+
+      let posts = JSON.parse(localStorage.getItem('suggestions') || "[]");
+      posts.unshift({
+        id: "SUG-" + Date.now(),
+        title,
+        desc,
+        category,
+        author: currentUser.alias,
+        authorEmail: currentUser.email,
+        branch: currentUser.branch || "General",
+        status: "Under Review",
+        upvotedBy: [],
+        repostedBy: [],
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      });
+
+      localStorage.setItem('suggestions', JSON.stringify(posts));
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-desc').value = '';
+      changeView('home');
+    }
+
+    // DIRECT INDEX-BASED DELETE (Works 100% for existing and new posts)
+    function deleteSuggestion(index) {
+      if (confirm("Kya aap sach me is suggestion ko delete karna chahte hain?")) {
+        let posts = JSON.parse(localStorage.getItem('suggestions') || "[]");
+        posts.splice(index, 1);
+        localStorage.setItem('suggestions', JSON.stringify(posts));
+        renderFeed();
+      }
+    }
+
+    function handleRepost(index) {
+      let posts = JSON.parse(localStorage.getItem('suggestions') || "[]");
+      const target = posts[index];
+      if (!target.repostedBy) target.repostedBy = [];
+      if (target.repostedBy.includes(currentUser.email)) return;
+
+      target.repostedBy.push(currentUser.email);
+      localStorage.setItem('suggestions', JSON.stringify(posts));
+      renderFeed();
+    }
+
+    function handleUpvote(index) {
+      let posts = JSON.parse(localStorage.getItem('suggestions') || "[]");
+      const target = posts[index];
+      if (!target.upvotedBy) target.upvotedBy = [];
+      if (target.upvotedBy.includes(currentUser.email)) return;
+
+      target.upvotedBy.push(currentUser.email);
+      localStorage.setItem('suggestions', JSON.stringify(posts));
+      renderFeed();
+    }
+
+    function changePassword(e) {
+      e.preventDefault();
+      const oldP = document.getElementById('old-pass').value;
+      const newP = document.getElementById('new-pass').value;
+      const msgBox = document.getElementById('pwd-msg');
+
+      let users = JSON.parse(localStorage.getItem('users') || "[]");
+      const idx = users.findIndex(u => u.email === currentUser.email);
+
+      if (idx === -1 || users[idx].password !== oldP) {
+        msgBox.className = "mb-4 p-3 rounded-xl text-xs font-medium border text-center bg-rose-500/10 text-rose-400 border-rose-500/30";
+        msgBox.innerText = "Old password galat hai!";
+        msgBox.classList.remove('hidden');
+        return;
+      }
+
+      users[idx].password = newP;
+      currentUser.password = newP;
+      localStorage.setItem('users', JSON.stringify(users));
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+      msgBox.className = "mb-4 p-3 rounded-xl text-xs font-medium border text-center bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+      msgBox.innerText = "Password update ho gaya!";
+      msgBox.classList.remove('hidden');
+      document.getElementById('old-pass').value = '';
+      document.getElementById('new-pass').value = '';
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = "page1.html";
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    renderFeed();
+  </script>
+</body>
+</html>
