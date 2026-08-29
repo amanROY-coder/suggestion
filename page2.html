@@ -125,7 +125,7 @@
 
   <script>
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) window.location.href = "page1.html";
+    if (!currentUser) window.location.href = "index.html";
 
     document.getElementById('nav-user-alias').innerText = currentUser.alias;
     document.getElementById('nav-user-branch').innerText = currentUser.branch || "General";
@@ -309,7 +309,7 @@
 
     function logout() {
       localStorage.removeItem('currentUser');
-      window.location.href = "page1.html";
+      window.location.href = "index.html";
     }
 
     function escapeHtml(str) {
